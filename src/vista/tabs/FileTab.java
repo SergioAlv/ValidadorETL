@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.Text;
 
+import util.QueryProvider;
 import util.ResourcesHandler;
 import vista.dialogs.IdentifyDialog;
 import vista.dialogs.ReportDialog;
@@ -257,8 +258,10 @@ public class FileTab {
 							bw.close();
 						}
 
+						String sourceQuery = QueryProvider.GetQuery(fileName.getText(),'F');
+						String targetQuery = QueryProvider.GetQuery(fileName2.getText(),'F');
 						IdentifyDialog.launch(composite.getShell(), bdsCombo.getText(),
-								bdsCombo2.getText(), passSource, passTarget, userSource, userTarget, 'f');
+								bdsCombo2.getText(), passSource, passTarget, userSource, userTarget, 'f', sourceQuery, targetQuery);
 
 						try {
 							if ((passSource.length() == 0)

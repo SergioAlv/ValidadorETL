@@ -13,8 +13,8 @@ public class ResourcesHandler {
 	public static final String[] FILTER_EXTS = { "*.sql", "*.*" };
 
 	// Usamos este enumerado para almacenar los tipos de base de datos.
-	public static final String[] BDs = { "DB22-DES", "DB22-PRE", "DB22-PRO",
-			"DB26-DES", "DB26-PRE", "DB26-PRO", "ORA-DES", "ORA-PRE", "ORA-PRO" };
+	public static final String[] BDs = { "DB2-DES", "DB2-PRE", "DB2-PRO",
+			"ORA-DES", "ORA-PRE", "ORA-PRO" };
 
 	public static String[] getBDsTarget(String bd) {
 
@@ -27,14 +27,7 @@ public class ResourcesHandler {
 
 			String bdAux = "ORA-" + entorno;
 
-			String bd2 = "";
-			if (bd.startsWith("DB22")) {
-				bd2 = "DB26-" + entorno;
-			} else if (bd.startsWith("DB26")) {
-				bd2 = "DB22-" + entorno;
-			}
-
-			String[] BDsT = { bd, bd2, bdAux };
+			String[] BDsT = { bd, bdAux };
 
 			return BDsT;
 		}

@@ -28,19 +28,33 @@ public class Validator {
 
 	private static void setControllers(String bdSource, String bdTarget) {
 
-		if (bdSource.contains("DB22-DES")) {
-			bdControllerSource = "jdbc:db2://servidor:puerto/BBDD";
-		} else if (bdSource.contains("DB22-PRE")) {
-			bdControllerSource = "jdbc:db2://servidor:puerto/BBDD";
+		if (bdSource.contains("DB2-DES")) {
+			bdControllerSource = "jdbc:db2://axdesdb22:50000/INDITEX";
+		} else if (bdSource.contains("DB2-PRE")) {
+			bdControllerSource = "jdbc:db2://axpredb22:50000/INDITEX";
+		} else if (bdSource.contains("DB2-PRO")) {
+			bdControllerSource = "jdbc:db2://axindb22v1:50000/INDITEX";
+		} else if (bdSource.contains("ORA-DES")) {
+			bdControllerSource = "jdbc:oracle:thin:@//localhost:1521/xe";
+		} else if (bdSource.contains("ORA-PRE")) {
+			bdControllerSource = "jdbc:oracle:thin:@//localhost:1521/xe";
+		} else if (bdSource.contains("ORA-PRO")) {
+			bdControllerSource = "jdbc:oracle:thin:@//localhost:1521/xe";
 		}
-		//ETC...
 
-		if (bdTarget.contains("DB22-DES")) {
-			bdControllerSource = "jdbc:db2://servidor:puerto/BBDD";
-		} else if (bdTarget.contains("DB22-PRE")) {
-			bdControllerSource = "jdbc:db2://servidor:puerto/BBDD";
+		if (bdTarget.contains("DB2-DES")) {
+			bdControllerSource = "jdbc:db2://axdesdb22:50000/INDITEX";
+		} else if (bdTarget.contains("DB2-PRE")) {
+			bdControllerSource = "jdbc:db2://axpredb22:50000/INDITEX";
+		} else if (bdTarget.contains("DB2-PRO")) {
+			bdControllerSource = "jdbc:db2://axindb22v1:50000/INDITEX";
+		} else if (bdTarget.contains("ORA-DES")) {
+			bdControllerTarget = "jdbc:oracle:thin:@//localhost:1521/xe";
+		} else if (bdTarget.contains("ORA-PRE")) {
+			bdControllerTarget = "jdbc:oracle:thin:@//localhost:1521/xe";
+		} else if (bdTarget.contains("ORA-PRO")) {
+			bdControllerTarget = "jdbc:oracle:thin:@//localhost:1521/xe";
 		}
-		//ETC..
 
 	}
 
@@ -96,87 +110,13 @@ public class Validator {
 		resultado = nombreTablaValidacion + "_2";
 		DataProcessor.processInfo(conditionJoin, nombreTablaSource,
 				nombreTablaTarget, nombreTablaValidacion,
-				"jdbc:oracle:thin:@//servidor:puerto/BBDD", "usuario",
-				"contraseña", log);
+				"jdbc:oracle:thin:@//localhost:1521/xe", "developer",
+				"developer", log);
 		time_end = System.currentTimeMillis();
 		log.append("INFO: Ejecutado en " + (time_end - time_start) / 1000
 				+ " segundos \n");
 		
 		return nombreTablaValidacion;
-	}
-
-	public static void validateFolder(String folderSource, String folderTarget,
-			String bdSource, String bdTarget, String userSource,
-			String userTarget, String passSource, String passTarget,
-			StyledText log) throws SQLException, ClassNotFoundException,
-			IOException {
-
-		Class.forName("com.ibm.db2.jcc.DB2Driver");
-
-		final File folderNoProcessed = new File(folderSource);
-		final File folderProcessed = new File(folderTarget);
-
-		File[] listOfFiles = folderNoProcessed.listFiles();
-		String query_origen = "", query_destino = "", conditionJoin = "";
-		bdPassSource = passSource;
-		bdPassTarget = passTarget;
-		bdUserSource = userSource;
-		bdUserTarget = userTarget;
-
-		log.setText("");
-		log.setText("Starting... \n");
-		log.append("INFO: Getting conection info... \n");
-
-		setControllers(bdSource, bdTarget);
-
-		int read = 0; // Flag que usaremos para diferenciar entre query_origen,
-						// query_destino.
-
-		// NOTA: Los archivos tienen que estar ordenados en la carpeta de la
-		// forma, query_destino_1, query_origen_1 etc
-		for (File file : listOfFiles) {
-
-			if (file.isFile()) {
-				log.append("INFO: Reading new file --> " + file.getName()
-						+ "\n");
-			}
-
-			if (read == 0) {
-
-				query_destino = FilesReader.readFile(file);
-				query_destino = query_destino.replaceAll("\\s+", " ");
-			} else if (read == 1) {
-
-				query_origen = FilesReader.readFile(file);
-				query_origen = query_origen.replaceAll("\\s+", " ");
-
-				validate(query_destino, query_origen, conditionJoin, log);
-			}
-
-			Path fileToMovePath = file.toPath();
-			Path targetPath = folderProcessed.toPath();
-			Files.copy(fileToMovePath,
-					targetPath.resolve(fileToMovePath.getFileName()),
-					StandardCopyOption.REPLACE_EXISTING);
-
-			log.append("INFO: Deleting processed files... \n");
-
-			file.delete(); // Ponemos esto para que los archivos del
-			// source se borren al acabar la ejecucion.
-
-			if (read == 1) {
-				log.append("\n");
-				read = 0;
-			} else {
-				read++;
-			}
-
-		}
-
-		log.append("\n\n SUCCESS");
-		log.setLineBackground(log.getLineCount() - 1, 1, Display.getCurrent()
-				.getSystemColor(SWT.COLOR_GREEN));
-
 	}
 
 	public static String validateFiles(String fileSource, String fileTarget,
@@ -227,8 +167,8 @@ public class Validator {
 		log.append("\n Mostrando tabla resultados: \n\n\n");
 
 		Results.showResults(resultado,
-				"jdbc:oracle:thin:@//servidor:puerto/BBDD", "usuario",
-				"contraseña", log);
+				"jdbc:oracle:thin:@//localhost:1521/xe", "developer",
+				"developer", log);
 
 		log.append("\n\n SUCCESS");
 		log.setLineBackground(log.getLineCount() - 1, 1, Display.getCurrent()
@@ -265,8 +205,8 @@ public class Validator {
 		log.append("\n Mostrando tabla resultados: \n\n\n");
 
 		Results.showResults(resultado,
-				"jdbc:oracle:thin:@//servidor:puerto/BBDD", "usuario",
-				"contraseña", log);
+				"jdbc:oracle:thin:@//localhost:1521/xe", "developer",
+				"developer", log);
 
 		log.append("\n\n SUCCESS");
 		log.setLineBackground(log.getLineCount() - 1, 1, Display.getCurrent()

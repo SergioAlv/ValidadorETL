@@ -38,8 +38,8 @@ public class ResultsReport {
 		Sheet hoja = libro.createSheet("Errores Validación");
 		
 		try {
-			con = DriverManager.getConnection("jdbc:oracle:thin:@//servidor:puerto/BBDD(des, pre o pro)", "usuario",
-					"contraseña");
+			con = DriverManager.getConnection("jdbc:oracle:thin:@//localhost:1521/xe", "developer",
+					"developer");
 			
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery("select * from "
@@ -69,6 +69,7 @@ public class ResultsReport {
 			
 			CellStyle csReg = GenericCellStyle.getStyle(libro, HSSFColor.AQUA.index);
 			
+			// TODO 13/11/2016 se puede eliminar si no da mas lata sin descomentar.
 			/*int pointer = 1;
 			String aux = "";
 			String commentError = "Estamos probando la ejecucion de los comentarios. \nMe gusta mucho como esta quedando esto. \n\nEs muy bonito.";
@@ -82,7 +83,7 @@ public class ResultsReport {
 					if (rs.getString(i+1) == null) {
 						celdaTabla.setCellValue("null");
 					} else if (tipoColumna == "NUMBER") {
-						celdaTabla.setCellValue(rs.getFloat(i+1));
+						celdaTabla.setCellValue(rs.getString(i+1));
 					} else if (tipoColumna == "TIMESTAMP") {
 						celdaTabla.setCellValue(rs.getTimestamp(i+1));
 					} else if (tipoColumna == "DATE") {
@@ -92,12 +93,12 @@ public class ResultsReport {
 					} else if (tipoColumna == "VARCHAR2") {
 						celdaTabla.setCellValue(rs.getString(i+1));
 					} else if (tipoColumna == "FLOAT") {
-						celdaTabla.setCellValue(rs.getFloat(i+1));
+						celdaTabla.setCellValue(rs.getDouble(i+1));
 					} else {
 						celdaTabla.setCellValue(rs.getString(i+1));
 					}
 					
-					//Control del cambio de fila
+					// TODO 13/11/2016 se puede eliminar si no da mas lata sin descomentar. Control del cambio de fila
 					/*if (flagFila != rs.getRow()+1) {
 						pointer = 1;
 						flagFila = rs.getRow()+1;

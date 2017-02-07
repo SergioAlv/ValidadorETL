@@ -1,5 +1,6 @@
 package vista.tabs;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import org.eclipse.swt.SWT;
@@ -20,6 +21,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TabFolder;
 
+import util.QueryProvider;
 import util.ResourcesHandler;
 import vista.dialogs.IdentifyDialog;
 import vista.dialogs.ReportDialog;
@@ -29,6 +31,8 @@ import com.ibm.db2.jcc.am.SqlInvalidAuthorizationSpecException;
 import controlador.Validator;
 
 public class QueryTab {
+	
+	private static String srcQuery = "";
 	
 	private static String passSource = "";
 	private static String passTarget = "";
@@ -43,6 +47,11 @@ public class QueryTab {
 		userSource = userS;
 		userTarget = userT;
 		ejecucion = ejec;
+	}
+	
+	public static void setSrcQuery(String formatedQuery) {
+		srcQuery = formatedQuery;
+
 	}
 	
 	public static Control getTabQueryControl(TabFolder tabFolder) {
@@ -137,8 +146,10 @@ public class QueryTab {
 								.getSystemColor(SWT.COLOR_RED));
 					} else {
 
+						String sourceQuery = QueryProvider.GetQuery(source.getText(),'Q');
+						String targetQuery = QueryProvider.GetQuery(target.getText(),'Q');
 						IdentifyDialog.launch(composite.getShell(), bdsCombo.getText(),
-								bdsCombo2.getText(), passSource, passTarget, userSource, userTarget, 'Q');
+								bdsCombo2.getText(), passSource, passTarget, userSource, userTarget, 'Q', sourceQuery, targetQuery);
 						
 						try {
 							if ((passSource.length() == 0)
@@ -156,7 +167,7 @@ public class QueryTab {
 							} else {
 								ejecucion = false;
 								String resultsTable = Validator.validateQueries(
-										source.getText(), target.getText(),
+										srcQuery, target.getText(),
 										bdsCombo.getText(),
 										bdsCombo2.getText(), userSource,
 										userTarget, passSource, passTarget,
@@ -176,7 +187,7 @@ public class QueryTab {
 											SWT.COLOR_RED));
 						}
 					}
-				} catch (ClassNotFoundException e) {
+				} catch (ClassNotFoundException | IOException e) {
 					logText.append("\n");
 					logText.append("\n");
 					logText.append("ERROR: Algo no ha ido bien... Pruebe a revisar los campos de entrada.");

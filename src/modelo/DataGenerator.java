@@ -23,8 +23,8 @@ public class DataGenerator {
 			String usrConexion, String passConexion, String queryConsulta,
 			StyledText log) throws SQLException {
 		Connection conControl = DriverManager.getConnection(
-				"jdbc:oracle:thin:@//servidor:puerto/BBDD", "usuario",
-				"contraseña");
+				"jdbc:oracle:thin:@//localhost:1521/xe", "developer",
+				"developer");
 		Connection con = DriverManager.getConnection(jdbcConexion, usrConexion,
 				passConexion);
 		Statement stmt = con.createStatement();

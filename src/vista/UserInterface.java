@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
 import vista.tabs.FileTab;
-import vista.tabs.FolderTab;
 import vista.tabs.QueryTab;
 
 public class UserInterface {
@@ -22,6 +21,13 @@ public class UserInterface {
 		shell.setSize(1000, 800);
 		shell.setMinimumSize(1000, 800);
 
+		
+		
+		// TODO Hacer un menu donde poder incorporar conexiones con los distintos servidores.
+		// TODO En este menu se debe poder poner la url de conexión (puerto, servidor...) y tambien el tipo de BBDD para darle un controlador u otro
+		
+		
+		
 		final TabFolder tabFolder = new TabFolder(shell, SWT.NONE);
 
 		TabItem text = new TabItem(tabFolder, SWT.NONE);
@@ -31,10 +37,6 @@ public class UserInterface {
 		TabItem archive = new TabItem(tabFolder, SWT.NONE);
 		archive.setText("Process Files");
 		archive.setControl(FileTab.getTabFileControl(tabFolder));
-
-		TabItem folder = new TabItem(tabFolder, SWT.NONE);
-		folder.setText("Process Folder");
-		folder.setControl(FolderTab.getTabFolderControl(tabFolder));
 		
 		shell.open();
 		while (!shell.isDisposed()) {

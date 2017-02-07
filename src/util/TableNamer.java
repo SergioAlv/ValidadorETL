@@ -12,12 +12,12 @@ public class TableNamer {
 		}
 		String from = query_destino.substring(init);
 		String table_name;
-		int begin_name = from.indexOf('.') + 1;
+		//int begin_name = from.indexOf('.') + 1;
 		if ((from.contains("JOIN")) || (from.contains("join"))) {
-			table_name = from.substring(begin_name, from.indexOf(' '));
+			table_name = from.substring(0, from.indexOf(' '));
 		} else {
 			from = from + " ";
-			table_name = from.substring(begin_name, from.indexOf(' '));
+			table_name = from.substring(0, from.indexOf(' '));
 		}
 		
 		return table_name;
