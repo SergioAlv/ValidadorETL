@@ -19,7 +19,7 @@ public class DataGenerator {
 
 	// blow the memory out on the db driver
 	// (sybase).
-	public static int generate(String nombreTabla, String jdbcConexion,
+	public static int generate(String nombreTabla, List<String> targetColumns, String jdbcConexion,
 			String usrConexion, String passConexion, String queryConsulta,
 			StyledText log) throws SQLException {
 		Connection conControl = DriverManager.getConnection(
@@ -42,7 +42,7 @@ public class DataGenerator {
 		
 		queryConsulta = operaciones.get(operaciones.size()-1); //Consulta select, ultimo elemento del script
 		
-		log.append(queryConsulta);
+		log.append(queryConsulta + "\n");
 		
 		ResultSet rs = stmt.executeQuery(queryConsulta);
 		ResultSetMetaData metadata = rs.getMetaData();
@@ -62,7 +62,8 @@ public class DataGenerator {
 
 		ArrayList<String> columns = new ArrayList<String>();
 		for (int i = 1; i <= columnCount; i++) {
-			String columnName = metadata.getColumnName(i);
+			//String columnName = metadata.getColumnName(i);
+			String columnName = targetColumns.get(i-1);
 			String columnType = metadata.getColumnTypeName(i);
 			if (columnType == "NUMBER" || columnType == "TIMESTAMP"
 					|| columnType == "DATE" || columnType == "INTEGER") {
@@ -108,11 +109,12 @@ public class DataGenerator {
 				sqlInsert += ",";
 				questionMarks += ",";
 			}
-			sqlInsert += metadata.getColumnName(c);
+			sqlInsert += targetColumns.get(c-1);
 			questionMarks += "?";
 		}
 		sqlInsert += ")  " + "values ( " + questionMarks + ")";
 
+		
 		PreparedStatement pstatementOut = conControl
 				.prepareStatement(sqlInsert);
 		int iRecords = 0;

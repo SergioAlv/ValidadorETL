@@ -7,7 +7,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
-import vista.tabs.FileTab;
 import vista.tabs.QueryTab;
 
 public class UserInterface {
@@ -33,10 +32,6 @@ public class UserInterface {
 		TabItem text = new TabItem(tabFolder, SWT.NONE);
 		text.setText("Process Queries");
 		text.setControl(QueryTab.getTabQueryControl(tabFolder));
-
-		TabItem archive = new TabItem(tabFolder, SWT.NONE);
-		archive.setText("Process Files");
-		archive.setControl(FileTab.getTabFileControl(tabFolder));
 		
 		shell.open();
 		while (!shell.isDisposed()) {

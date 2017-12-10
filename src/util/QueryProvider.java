@@ -50,13 +50,13 @@ public class QueryProvider {
 				finish = true;
 			}
 			
-			if (column.contains("AS") || column.contains("as")) {
+			if (column.contains(" AS") || column.contains(" as")) {
 				
 				int as = -1;
-				if (column.contains("AS")) {
-					as = column.indexOf("AS") + 3;
-				} else if (column.contains("as")) {
-					as = column.indexOf("as") + 3;
+				if (column.contains(" AS")) {
+					as = column.indexOf(" AS") + 4;
+				} else if (column.contains(" as")) {
+					as = column.indexOf(" as") + 4;
 				}
 				
 				column = column.substring(as);

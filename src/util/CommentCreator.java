@@ -19,12 +19,6 @@ public class CommentCreator {
 		 anchor.setCol2(celda.getColumnIndex() + 1);
 		 anchor.setRow1(celda.getRowIndex());
 		 anchor.setRow2(celda.getRowIndex() + 3);
-		 //TODO Configurar dimensionado del comentario
-		 //miguelitosss@gmail.com --> Miguel Barral (Pequeño Satán)
-		 /*anchor.setDx1(300);
-		 anchor.setDx2(200);
-		 anchor.setDy1(300);
-		 anchor.setDy2(200);*/
 
 		 Comment comment = drawing.createCellComment(anchor);
 		 RichTextString str = factory.createRichTextString(commentStr);

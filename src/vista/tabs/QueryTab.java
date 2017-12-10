@@ -39,6 +39,8 @@ public class QueryTab {
 	private static String userSource = "";
 	private static String userTarget = "";
 	private static boolean ejecucion = false;
+	private static boolean notTransformations = true;
+	private static String condition = "";
 
 	public static void setCredentials(String passS, String passT, String userS,
 			String userT, boolean ejec) {
@@ -51,7 +53,14 @@ public class QueryTab {
 	
 	public static void setSrcQuery(String formatedQuery) {
 		srcQuery = formatedQuery;
-
+	}
+	
+	public static void setNotTransformations(boolean result) {
+		notTransformations = result;
+	}
+	
+	public static void setCondition(String newCondition) {
+		condition = newCondition;
 	}
 	
 	public static Control getTabQueryControl(TabFolder tabFolder) {
@@ -164,13 +173,21 @@ public class QueryTab {
 										1,
 										Display.getCurrent().getSystemColor(
 												SWT.COLOR_YELLOW));
+							} else if (!notTransformations) {
+								logText.setText("");
+								logText.append("INFO: No has introducido todas las transformaciones.");
+								logText.setLineBackground(
+										logText.getLineCount() - 1,
+										1,
+										Display.getCurrent().getSystemColor(
+												SWT.COLOR_YELLOW));
 							} else {
 								ejecucion = false;
 								String resultsTable = Validator.validateQueries(
 										srcQuery, target.getText(),
 										bdsCombo.getText(),
 										bdsCombo2.getText(), userSource,
-										userTarget, passSource, passTarget,
+										userTarget, passSource, passTarget, condition,
 										logText);
 								
 								//Ventana de dialogo "Quiere generar un informe de errores?" y que pida el nombre del fichero. Comprueba el campo "Validacion" de la primera tabla resultados.

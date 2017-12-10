@@ -55,8 +55,8 @@ public class DataProcessor {
 				columnNameAlias = columnName.substring(0, 26);
 			}
 			createTable = createTable + " a." + columnName + " "
-					+ columnNameAlias + "_ori,b." + columnName + " "
-					+ columnNameAlias + "_des,case when a." + columnName
+					+ "ori_" + columnNameAlias + ",b." + columnName + " "
+					+ "des_" + columnNameAlias + ",case when a." + columnName
 					+ "=b." + columnName + " or (a." + columnName
 					+ " is null and b." + columnName
 					+ " is null) then 0 else 1 end val_" + columnNameAlias;

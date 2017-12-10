@@ -1,6 +1,7 @@
 package controlador;
 
 import java.io.IOException;
+import java.util.Map;
 
 import modelo.ResultsReport;
 
@@ -12,7 +13,7 @@ import org.eclipse.swt.widgets.Shell;
 
 public class ReportGenerator {
 
-	public static void generateReport(Shell shell, StyledText logText, String resultsTable, String fileName) {
+	public static void generateReport(Shell shell, StyledText logText, String resultsTable, String fileName, Map<String, String> transformations) {
 		
 		logText.append("\n");
 		logText.append("\n");
@@ -20,7 +21,7 @@ public class ReportGenerator {
 		
 		try {
 			
-			ResultsReport.generate(shell, logText, resultsTable, fileName);
+			ResultsReport.generate(shell, logText, resultsTable, fileName, transformations);
 			
 		} catch (IOException e) {
 			logText.append("\n");

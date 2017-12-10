@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -23,12 +25,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import util.CommentCreator;
+import util.ErrorModule;
 import util.ExcelCreator;
 import util.GenericCellStyle;
 
 public class ResultsReport {
 
-	public static void generate(Shell shell, StyledText logText, String resultsTable, String fileName) throws IOException {
+	public static void generate(Shell shell, StyledText logText, String resultsTable, String fileName, Map<String, String> transformations) throws IOException {
 		
 		Connection con;
 		
@@ -52,6 +55,7 @@ public class ResultsReport {
 			
 			celda.setCellStyle(GenericCellStyle.getStyle(libro, HSSFColor.YELLOW.index));
 
+			java.util.List<String> columnNames = new ArrayList<String>();
 			int nColumnas = rs.getMetaData().getColumnCount();
 			Row filaNombreColumnas = hoja.createRow(rs.getRow()+1);
 			CellStyle csColumns = GenericCellStyle.getStyle(libro, HSSFColor.LIGHT_ORANGE.index);
@@ -59,6 +63,7 @@ public class ResultsReport {
 				Cell celdaTabla = filaNombreColumnas.createCell(i);
 					
 				String columnName = rs.getMetaData().getColumnName(i+1);
+				columnNames.add(columnName);
 				
 				celdaTabla.setCellValue(columnName);
 				celdaTabla.setCellStyle(csColumns);
@@ -69,11 +74,7 @@ public class ResultsReport {
 			
 			CellStyle csReg = GenericCellStyle.getStyle(libro, HSSFColor.AQUA.index);
 			
-			// TODO 13/11/2016 se puede eliminar si no da mas lata sin descomentar.
-			/*int pointer = 1;
-			String aux = "";
-			String commentError = "Estamos probando la ejecucion de los comentarios. \nMe gusta mucho como esta quedando esto. \n\nEs muy bonito.";
-			int flagFila = -2;*/
+			String origen = "", destino = "";
 			while (rs.next()) {
 				Row filaTabla = hoja.createRow(rs.getRow()+1);
 				for (int i = 0; i < nColumnas; i++) {
@@ -97,27 +98,31 @@ public class ResultsReport {
 					} else {
 						celdaTabla.setCellValue(rs.getString(i+1));
 					}
+
+					if(columnNames.get(i).substring(0, 4).equals("ORI_")) {
+						if (rs.getString(i+1) == null) {
+							origen = "null";
+						} else {
+							origen = rs.getString(i+1);
+						}
+					}
 					
-					// TODO 13/11/2016 se puede eliminar si no da mas lata sin descomentar. Control del cambio de fila
-					/*if (flagFila != rs.getRow()+1) {
-						pointer = 1;
-						flagFila = rs.getRow()+1;
-					}*/
+					if(columnNames.get(i).substring(0, 4).equals("DES_")) {
+						if (rs.getString(i+1) == null) {
+							destino = "null";
+						} else {
+							rs.getString(i+1);
+						}
+					}
 					
-					//Almacena el valor de la primera celda en un auxiliar, y comparar con la segunda, usando la columna de validación para introducir comentario.
-					//TODO No se por que empieza a introducir comentarios en la fila 156
-					//TODO No puedo coger el valor de la celda como String?
-					/*if (pointer == 0) {
-						Comment comment = CommentCreator.create(commentError, celdaTabla);
-						celdaTabla.setCellComment(comment);
-						pointer++;
-					} else if (pointer == 1) {
-						//aux = celdaTabla.getStringCellValue();
-						pointer++;
-					} else if (pointer == 2){
-						pointer = 0;
-						//commentError = ControlError.resolve(aux, celdaTabla.getStringCellValue());
-					}*/
+					if(columnNames.get(i).substring(0, 4).equals("VAL_")) {
+						if(rs.getString(i+1).equals("1")) {
+							String errorTrans = transformations.get(columnNames.get(i).substring(4));
+							String error = ErrorModule.process(origen, destino, errorTrans);
+							Comment comment = CommentCreator.create(error, celdaTabla);
+							celdaTabla.setCellComment(comment);
+						}
+					}
 					
 					celdaTabla.setCellStyle(csReg);
 				}

@@ -25,6 +25,8 @@ public class Validator {
 	private static String bdPassSource;
 	private static String bdPassTarget;
 	private static String resultado;
+	
+	public static String newCondition;
 
 	private static void setControllers(String bdSource, String bdTarget) {
 
@@ -57,9 +59,13 @@ public class Validator {
 		}
 
 	}
+	
+	public static void setCondition(String condition) {
+		newCondition = condition;
+	}
 
 	public static String validate(String query_destino, String query_origen,
-			String conditionJoin, StyledText log) throws SQLException,
+			StyledText log) throws SQLException,
 			ClassNotFoundException {
 
 		long time_start, time_end;
@@ -70,7 +76,8 @@ public class Validator {
 		}
 
 		String table_name = TableNamer.GetTableName(query_destino);
-
+		java.util.List<String> targetColumns = QueryProvider.GetColumns(query_destino);
+		
 		String nombreTablaSource = "origen_" + table_name;
 		String nombreTablaTarget = "destino_" + table_name;
 		String nombreTablaValidacion = "validacion_" + table_name;
@@ -86,7 +93,7 @@ public class Validator {
 
 		time_start = System.currentTimeMillis();
 		log.append("INFO: Cargando tabla origen... \n");
-		int cant = DataGenerator.generate(nombreTablaSource, bdControllerSource,
+		int cant = DataGenerator.generate(nombreTablaSource, targetColumns, bdControllerSource,
 				bdUserSource, bdPassSource, query_origen, log);
 		time_end = System.currentTimeMillis();
 		log.append("INFO: Ejecutado en " + (time_end - time_start) / 1000
@@ -94,21 +101,18 @@ public class Validator {
 
 		time_start = System.currentTimeMillis();
 		log.append("INFO: Cargando tabla destino... \n");
-		cant = DataGenerator.generate(nombreTablaTarget, bdControllerTarget,
+		cant = DataGenerator.generate(nombreTablaTarget, targetColumns, bdControllerTarget,
 				bdUserTarget, bdPassTarget, query_destino, log);
 		time_end = System.currentTimeMillis();
 		log.append("INFO: Ejecutado en " + (time_end - time_start) / 1000
 				+ " segundos. " + cant + " Registros Insertados \n");
 
-		log.append("INFO: Generating Join Condition... \n");
-		conditionJoin = GenerateJoin.generateConditionJoin(query_destino,
-				bdControllerTarget, bdUserTarget, bdPassTarget);
-		log.append("INFO: Join Condition --> " + conditionJoin + "\n");
+		log.append("INFO: Join Condition --> " + newCondition + "\n");
 
 		time_start = System.currentTimeMillis();
 		log.append("INFO: Cargando tablas de comparacion... \n");
 		resultado = nombreTablaValidacion + "_2";
-		DataProcessor.processInfo(conditionJoin, nombreTablaSource,
+		DataProcessor.processInfo(newCondition, nombreTablaSource,
 				nombreTablaTarget, nombreTablaValidacion,
 				"jdbc:oracle:thin:@//localhost:1521/xe", "developer",
 				"developer", log);
@@ -122,7 +126,7 @@ public class Validator {
 	public static String validateFiles(String fileSource, String fileTarget,
 			String folderTarget, String bdSource, String bdTarget,
 			String userSource, String userTarget, String passSource,
-			String passTarget, StyledText log) throws SQLException,
+			String passTarget, String condition, StyledText log) throws SQLException,
 			ClassNotFoundException, IOException {
 
 		Class.forName("com.ibm.db2.jcc.DB2Driver");
@@ -135,9 +139,10 @@ public class Validator {
 		bdUserSource = userSource;
 		bdUserTarget = userTarget;
 
-		String query_origen = "", query_destino = "", conditionJoin = "";
+		String query_origen = "", query_destino = "";
 
 		setControllers(bdSource, bdTarget);
+		setCondition(condition);
 
 		log.setText("");
 		log.setText("Starting... \n");
@@ -149,7 +154,7 @@ public class Validator {
 		query_destino = FilesReader.readFile(targetQuery);
 		query_destino = query_destino.replaceAll("\\s+", " ");
 
-		String resultsTable = validate(query_destino, query_origen, conditionJoin, log);
+		String resultsTable = validate(query_destino, query_origen, log);
 
 		Path targetPath = folderProcessed.toPath();
 		Files.copy(sourceQuery.toPath(),
@@ -180,7 +185,7 @@ public class Validator {
 	public static String validateQueries(String fileSource, String fileTarget,
 			String bdSource, String bdTarget, String userSource,
 			String userTarget, String passSource, String passTarget,
-			StyledText log) throws SQLException, ClassNotFoundException {
+			String condition, StyledText log) throws SQLException, ClassNotFoundException {
 
 		Class.forName("com.ibm.db2.jcc.DB2Driver");
 
@@ -190,17 +195,18 @@ public class Validator {
 		bdUserTarget = userTarget;
 
 		setControllers(bdSource, bdTarget);
-
+		setCondition(condition);
+		
 		log.setText("");
 		log.setText("Starting... \n");
 		log.append("INFO: Getting conection info... \n");
 
 		log.append("INFO: Reading Files... \n");
-		String query_origen = fileSource, query_destino = fileTarget, conditionJoin = "";
+		String query_origen = fileSource, query_destino = fileTarget;
 		query_origen = query_origen.replaceAll("\\s+", " ");
 		query_destino = query_destino.replaceAll("\\s+", " ");
 
-		String resultsTable = validate(query_destino, query_origen, conditionJoin, log);
+		String resultsTable = validate(query_destino, query_origen, log);
 
 		log.append("\n Mostrando tabla resultados: \n\n\n");
 

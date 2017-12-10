@@ -1,5 +1,7 @@
 package vista.dialogs;
 
+import java.util.Map;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -18,6 +20,12 @@ import controlador.ReportGenerator;
 
 public class ReportDialog {
 
+	private static Map<String, String> transformations;
+	
+	public static void setTransformations(Map<String, String> trans) {
+		transformations = trans;
+	}
+	
 	public static void launch(final Shell shell, final StyledText log, final String resultsTable) {
 
 		GridLayout gridLayout = new GridLayout(2, false);
@@ -68,7 +76,7 @@ public class ReportDialog {
 					fileName.setText("report");
 				}
 				
-				ReportGenerator.generateReport(shell, log, resultsTable, fileName.getText());
+				ReportGenerator.generateReport(shell, log, resultsTable, fileName.getText(), transformations);
 				
 				dialog.dispose();
 			}

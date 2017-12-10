@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -12,8 +14,10 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -22,11 +26,13 @@ import org.eclipse.swt.widgets.Text;
 
 import controlador.TransformationModule;
 import util.QueryProvider;
-import vista.tabs.FileTab;
 import vista.tabs.QueryTab;
 
 public class IdentifyDialog {
 
+	private static int editors = 0;
+	private static Map<Text, Integer> mapping = new HashMap<Text, Integer>();
+	
 	public static void launch(Shell shell, String src, String trg,
 			String passSource, String passTarget, String userSource,
 			String userTarget, final char tab, String sourceQuery, String targetQuery) {
@@ -39,7 +45,7 @@ public class IdentifyDialog {
 		dialog.setSize(420, 500);
 		dialog.setMinimumSize(420, 500);
 
-
+		
 		//RECUPERAMOS DE LAS QUERIES LAS COLUMNAS DE CADA UNA
 		final String sourceRef = sourceQuery;
 		final java.util.List<String> sourceColumns = QueryProvider.GetColumns(sourceQuery);
@@ -65,24 +71,46 @@ public class IdentifyDialog {
 		columnTarget.setText("Targets");
 		TableColumn columnKey = new TableColumn(table, SWT.NONE);
 		columnKey.setWidth(100);
-		columnKey.setText("Transformation");
-		
-
+		columnKey.setText("Transformation");	
 
 		
 		//RELLENAMOS LA TABLA CON LAS COLUMNAS DE LAS QUERIES, LAS POSIBLES TRANSFORMACIONES, Y UN CHECK PARA LA CLAVE PRIMARIA
 		table.setItemCount(nItems);
 		TableItem[] items = table.getItems();
 		TableEditor editor = new TableEditor(table);
+		final TableEditor[] textEditor = new TableEditor[items.length-2];
+		final TableEditor conditionEditor;
+		final TableEditor groupEditor;
+		final Text[] trans = new Text[items.length-2];
+		
+		//Listener to enter transformations
+		Listener listener = new Listener()
+	    {
+			@Override
+	        public void handleEvent(Event e)
+	        {
+	            Text t = (Text) e.widget;
+
+	            editors = mapping.get(t);
+	            trans[editors].addModifyListener(new ModifyListener(){
+				      public void modifyText(ModifyEvent event) {
+					        // Get the widget whose text was modified
+					        Text text = (Text) event.widget;
+					        textEditor[editors].getItem().setText(3, text.getText());
+					      }
+					});
+	        }
+	    };
+
+		
 		for (int i = 0; i < items.length-2; i++) {
-			
+
 			editor = new TableEditor(table);
 			final Text srcCols = new Text(table, SWT.BORDER);
 			srcCols.setText(sourceColumns.get(i));
 			srcCols.setEditable(false);
 			editor.grabHorizontal = true;
 			editor.setEditor(srcCols, items[i], 0);
-
 			
 			editor = new TableEditor(table);
 			final Text separator = new Text(table, SWT.BORDER);
@@ -97,33 +125,59 @@ public class IdentifyDialog {
 			tgtCols.setEditable(false);
 			editor.grabHorizontal = true;
 			editor.setEditor(tgtCols, items[i], 2);
+			
+			textEditor[i] = new TableEditor(table);
+			trans[i] = new Text(table, SWT.BORDER);
+			trans[i].setText("");
+			textEditor[i].grabHorizontal = true;
+			textEditor[i].setEditor(trans[i], items[i], 3);
+			mapping.put(trans[i], i);
+			trans[i].addListener(SWT.MouseDown, listener);
+
+		}
 
 			
-			// TODO INTENTAR QUE SALGA UN DIALOGO PARA INTRODUCIR EL TEXTO DE LA TRANSFORMACION EN UNA VENTANA GRANDE
-		    editor = new TableEditor(table);
-			final Text trans = new Text(table, SWT.BORDER);
-			trans.setText(sourceColumns.get(i));
-			editor.grabHorizontal = true;
-			editor.setEditor(trans, items[i], 3);
-			
-		} 
-			
+		editor = new TableEditor(table);
+		final Text groupLabel = new Text(table, SWT.BORDER);
+		groupLabel.setText("GROUP BY ");
+		groupLabel.setEditable(false);
+		editor.grabHorizontal = true;
+		editor.setEditor(groupLabel, items[nItems-2], 0);
+		
+		
+		groupEditor = new TableEditor(table);
+		Text group = new Text(table, SWT.BORDER);
+		group.setText("");
+		groupEditor.grabHorizontal = true;
+		groupEditor.setEditor(group, items[nItems-2], 1);
+		group.addModifyListener(new ModifyListener(){
+	      public void modifyText(ModifyEvent event) {
+		        // Get the widget whose text was modified
+		        Text text = (Text) event.widget;
+		        groupEditor.getItem().setText(1, text.getText());
+		      }
+		});
+		
+		
 		editor = new TableEditor(table);
 		final Text condLabel = new Text(table, SWT.BORDER);
 		condLabel.setText("Condition = ");
 		condLabel.setEditable(false);
 		editor.grabHorizontal = true;
-		System.out.println(items.length);
 		editor.setEditor(condLabel, items[nItems-1], 0);
-			
 		
-		// TODO INTENTAR QUE SALGA UN DIALOGO PARA INTRODUCIR EL TEXTO DE LA TRANSFORMACION EN UNA VENTANA GRANDE	
-		editor = new TableEditor(table);
-		final Text condition = new Text(table, SWT.BORDER);
-		condition.setText("Enter Condition");
-		editor.grabHorizontal = true;
-		editor.setEditor(condition, items[nItems-1], 1);
-		
+		conditionEditor = new TableEditor(table);
+		Text condition = new Text(table, SWT.BORDER);
+		condition.setText("a. = b.");
+		conditionEditor.grabHorizontal = true;
+		conditionEditor.setEditor(condition, items[nItems-1], 1);
+		condition.addModifyListener(new ModifyListener(){
+	      public void modifyText(ModifyEvent event) {
+		        // Get the widget whose text was modified
+		        Text text = (Text) event.widget;
+		        conditionEditor.getItem().setText(1, text.getText());
+		      }
+		});
 		
 		// CREAMOS UN GRUPO PARA LAS CREDENCIALES DEL SOURCE
 		Group source = new Group(dialog, SWT.SHADOW_IN);
@@ -151,8 +205,7 @@ public class IdentifyDialog {
 		final Label labelUser2 = new Label(target, SWT.NONE);
 		labelUser2.setText("Username:");
 		final Text userName2 = new Text(target, SWT.BORDER);
-		userName2
-				.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+		userName2.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
 		final Label labelPass2 = new Label(target, SWT.NONE);
 		labelPass2.setText("Pass:");
@@ -189,27 +242,38 @@ public class IdentifyDialog {
 				if (tab == 'Q') {
 					QueryTab.setCredentials(pass.getText(), pass2.getText(),
 							userName.getText(), userName2.getText(), true);
-				} else if (tab == 'f') {
-					FileTab.setCredentials(pass.getText(), pass2.getText(),
-							userName.getText(), userName2.getText(), true);
 				}
-	
+				
 				//ENVIAMOS AL CONTROLADOR LAS TRANSFORMACIONES COMO CLAVE-VALOR (targetColum-transformation): movId = movId    O    balance = SUM(balance) BY usrId
-				TableItem[] items = table.getItems();
 				Map<String, String> transformations = new HashMap<String, String>();
+				boolean noContinue = false;
 				for (int i = 0; i < nItems-2; i++) {
+					String target = targetColumns.get(i);
 					
-					int equal = items[i].getText().indexOf("=");
-					String target = items[i].getText(2).substring(0, equal-1);
-					transformations.put(target, items[i].getText(3));
-					
+					if (textEditor[i].getItem().getText(3) == "") {
+						QueryTab.setNotTransformations(false);
+						noContinue = true;
+					} else {
+						transformations.put(target, textEditor[i].getItem().getText(3));
+					}
+
 				}
 
-				String formatedSrcQ = TransformationModule.FormatQuery(sourceRef, transformations, targetColumns);
-				
-				QueryTab.setSrcQuery(formatedSrcQ);
+				if (!noContinue) {
+					String groupBy = "";
+					if(groupEditor.getItem().getText(1) != "") {
+						groupBy = " GROUP BY " + groupEditor.getItem().getText(1);
+					}
+					String formatedSrcQ = TransformationModule.FormatQuery(sourceRef, transformations, targetColumns, groupBy);
+					
+					QueryTab.setCondition(conditionEditor.getItem().getText(1));
+					QueryTab.setSrcQuery(formatedSrcQ);
+					QueryTab.setNotTransformations(true);
+					ReportDialog.setTransformations(transformations);
+				}
 				
 				dialog.dispose();
+				
 			}
 		});
 
